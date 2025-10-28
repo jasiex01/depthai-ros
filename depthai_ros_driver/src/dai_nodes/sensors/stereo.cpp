@@ -44,9 +44,6 @@ Stereo::Stereo(const std::string& daiNodeName,
             RCLCPP_INFO(getLogger(), 
                        "Both stereo cameras have ROTATE_180_DEG orientation set. Swapping left and right sockets for correct depth calculation.");
             std::swap(leftSocket, rightSocket);
-            // Update socket names after swap
-            leftSocketName = getSocketName(leftSocket);
-            rightSocketName = getSocketName(rightSocket);
         }
     } catch(const std::exception& e) {
         RCLCPP_DEBUG(getLogger(), "Could not check camera orientation parameters: %s", e.what());
