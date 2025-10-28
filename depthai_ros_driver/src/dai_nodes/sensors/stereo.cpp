@@ -34,11 +34,12 @@ Stereo::Stereo(const std::string& daiNodeName,
     ph->updateSocketsFromParams(leftSocket, rightSocket, alignSocket);
     
     // Check if both cameras have ROTATE_180_DEG orientation and swap sockets if needed
-    std::string leftSocketName = getSocketName(leftSocket);
-    std::string rightSocketName = getSocketName(rightSocket);
+    // Note: We use the original socket names to read the orientation parameters
+    std::string originalLeftSocketName = getSocketName(leftSocket);
+    std::string originalRightSocketName = getSocketName(rightSocket);
     try {
-        std::string leftOrientation = ph->getOtherNodeParam<std::string>(leftSocketName, "i_sensor_img_orientation");
-        std::string rightOrientation = ph->getOtherNodeParam<std::string>(rightSocketName, "i_sensor_img_orientation");
+        std::string leftOrientation = ph->getOtherNodeParam<std::string>(originalLeftSocketName, "i_sensor_img_orientation");
+        std::string rightOrientation = ph->getOtherNodeParam<std::string>(originalRightSocketName, "i_sensor_img_orientation");
         
         if(leftOrientation == "ROTATE_180_DEG" && rightOrientation == "ROTATE_180_DEG") {
             RCLCPP_INFO(getLogger(), 
