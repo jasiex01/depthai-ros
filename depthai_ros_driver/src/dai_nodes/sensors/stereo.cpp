@@ -32,6 +32,26 @@ Stereo::Stereo(const std::string& daiNodeName,
         alignSocket = dai::CameraBoardSocket::CAM_C;
     }
     ph->updateSocketsFromParams(leftSocket, rightSocket, alignSocket);
+    
+    // Check if both cameras have ROTATE_180_DEG orientation and swap sockets if needed
+    std::string leftSocketName = getSocketName(leftSocket);
+    std::string rightSocketName = getSocketName(rightSocket);
+    try {
+        std::string leftOrientation = ph->getOtherNodeParam<std::string>(leftSocketName, "i_sensor_img_orientation");
+        std::string rightOrientation = ph->getOtherNodeParam<std::string>(rightSocketName, "i_sensor_img_orientation");
+        
+        if(leftOrientation == "ROTATE_180_DEG" && rightOrientation == "ROTATE_180_DEG") {
+            RCLCPP_INFO(getLogger(), 
+                       "Both stereo cameras have ROTATE_180_DEG orientation set. Swapping left and right sockets for correct depth calculation.");
+            std::swap(leftSocket, rightSocket);
+            // Update socket names after swap
+            leftSocketName = getSocketName(leftSocket);
+            rightSocketName = getSocketName(rightSocket);
+        }
+    } catch(const std::exception& e) {
+        RCLCPP_DEBUG(getLogger(), "Could not check camera orientation parameters: %s", e.what());
+    }
+    
     auto features = device->getConnectedCameraFeatures();
     for(auto f : features) {
         if(f.socket == leftSocket) {
